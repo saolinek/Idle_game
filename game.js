@@ -1,6 +1,6 @@
 window.Game = {
     // Verze aplikace (Zvyšovat o +0.1 při každé úpravě/bugfixu)
-    VERSION: "1.0",
+    VERSION: "1.1",
     state: null,
     
     // Base Sigil Threshold: 10^6
