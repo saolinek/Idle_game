@@ -15,6 +15,11 @@ window.Main = {
         this.lastTime = performance.now();
         requestAnimationFrame((t) => this.loop(t));
 
+        // 4. Auto-save on exit
+        window.addEventListener('beforeunload', () => {
+            window.GameStorage.save(window.Game.state);
+        });
+
         console.log("Ready.");
     },
 

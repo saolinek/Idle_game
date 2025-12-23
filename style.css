@@ -91,3 +91,80 @@ button:disabled, .btn-disabled {
     0% { transform: translateY(0) scale(1); opacity: 1; }
     100% { transform: translateY(-50px) scale(1.5); opacity: 0; }
 }
+
+/* ========================================= */
+/* MOBILE LAYOUT OPTIMIZATION (No-Scroll)    */
+/* ========================================= */
+
+/* 1. Main Container Override */
+#main-content {
+    overflow: hidden !important; /* Vypnout globální scroll */
+    padding: 0 !important;       /* Odstranit padding wrapperu */
+    display: flex;
+    flex-direction: column;
+}
+
+/* 2. Production Tab - Fixed & Fit */
+#tab-production {
+    height: 100%;
+    width: 100%;
+    padding: 10px !important;
+    padding-bottom: 10px !important; 
+    display: flex;
+    flex-direction: column;
+    overflow: hidden !important;
+}
+
+/* FIX: Ensure hidden class takes precedence over display: flex */
+#tab-production.hidden {
+    display: none !important;
+}
+
+#tab-production #grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    /* 3 řádky, které se roztáhnou na dostupnou výšku (minmax(0, 1fr) umožňuje zmenšení pod obsah) */
+    grid-template-rows: repeat(3, minmax(0, 1fr)) !important;
+    height: 100% !important;
+    gap: 8px !important;
+    overflow: hidden !important;
+}
+
+/* 3. Compact Cards for Production */
+#tab-production .card-press {
+    padding: 10px !important;
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+}
+
+/* Zmenšení vnitřních marginů v kartách */
+#tab-production .card-press > div {
+    margin-bottom: 0 !important;
+}
+#tab-production .card-press .mt-2 {
+    margin-top: auto !important; /* Push footer down */
+    padding-top: 4px !important;
+    border-top-width: 1px !important;
+}
+#tab-production .card-press .w-full.h-1.5 {
+    margin-top: 4px !important;
+    height: 4px !important;
+}
+#tab-production .card-press .text-lg {
+    font-size: 1rem !important; /* Menší ikona */
+}
+#tab-production .card-press .text-\[13px\] {
+    font-size: 11px !important; /* Menší nadpis */
+}
+
+/* 4. Other Tabs - Scrollable */
+#tab-prestige, #tab-stats {
+    height: 100%;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    padding: 1rem !important;
+    /* Padding dole pro vizuální odsazení konce listu */
+    padding-bottom: 2rem !important; 
+}

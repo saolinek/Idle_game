@@ -330,5 +330,47 @@ window.UI = {
         el.innerText = `+${text}`;
         document.body.appendChild(el);
         setTimeout(() => el.remove(), 800);
+    },
+
+    showOfflineInfo(seconds, gained) {
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        
+        let timeStr = "";
+        if (hours > 0) timeStr += `${hours}h `;
+        timeStr += `${minutes}m`;
+        if (hours === 0 && minutes === 0) timeStr = "< 1m";
+
+        const msg = `Byl jsi pryč ${timeStr} — získal jsi +${this.formatWithUnit(gained, " 💎")}`;
+
+        const el = document.createElement('div');
+        Object.assign(el.style, {
+            position: 'fixed',
+            bottom: '20px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            backgroundColor: '#1e293b',
+            color: 'white',
+            padding: '12px 24px',
+            borderRadius: '8px',
+            boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+            zIndex: '9999',
+            fontFamily: 'sans-serif',
+            fontWeight: 'bold',
+            fontSize: '14px',
+            pointerEvents: 'none',
+            transition: 'opacity 0.5s',
+            opacity: '0'
+        });
+        el.innerText = msg;
+
+        document.body.appendChild(el);
+        
+        requestAnimationFrame(() => el.style.opacity = '1');
+
+        setTimeout(() => {
+            el.style.opacity = '0';
+            setTimeout(() => el.remove(), 500);
+        }, 5000);
     }
 };

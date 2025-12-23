@@ -6,6 +6,7 @@ window.GameStorage = {
             bytes: 25,
             lifetimeBytes: 25,
             startTime: Date.now(),
+            lastTimestamp: Date.now(),
             stars: 0, // Available Sigils
             totalSigilsEarned: 0, // Lifetime Sigils (pro výpočet thresholdu)
             mode: 'NEXT',
@@ -80,6 +81,7 @@ window.GameStorage = {
 
     save(state) {
         try {
+            state.lastTimestamp = Date.now();
             localStorage.setItem(this.KEY, JSON.stringify(state));
         } catch (e) {
             console.error("Save failed:", e);

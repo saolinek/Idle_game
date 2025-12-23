@@ -6,6 +6,7 @@ window.Game = {
 
     init() {
         this.state = window.GameStorage.load();
+        this.processOfflineProgress();
     },
 
     tick(dt) {
@@ -153,5 +154,35 @@ window.Game = {
         this.state.bytes += cheat;
         this.state.lifetimeBytes += cheat;
         return cheat;
+    },
+
+    processOfflineProgress() {
+        if (!this.state.lastTimestamp) return;
+
+        const now = Date.now();
+        // Rozdíl v sekundách
+        let offlineSeconds = (now - this.state.lastTimestamp) / 1000;
+
+        // Ignorovat krátké výpadky (< 1s)
+        if (offlineSeconds < 1) return;
+
+        // Limit 8 hodin
+        const maxSeconds = 8 * 60 * 60;
+        if (offlineSeconds > maxSeconds) {
+            offlineSeconds = maxSeconds;
+        }
+
+        const prodPerSec = this.getTotalProduction();
+        if (prodPerSec <= 0) return;
+
+        const offlineGain = prodPerSec * offlineSeconds;
+
+        this.state.bytes += offlineGain;
+        this.state.lifetimeBytes += offlineGain;
+
+        // UI notifikace (pokud byl nějaký zisk)
+        if (offlineGain > 0) {
+            window.UI.showOfflineInfo(offlineSeconds, offlineGain);
+        }
     }
 };
