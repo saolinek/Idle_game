@@ -1,10 +1,10 @@
 window.Game = {
     // Verze aplikace (Zvyšovat o +0.1 při každé úpravě/bugfixu)
-    VERSION: "1.1",
+    VERSION: "1.2",
     state: null,
     
-    // Base Sigil Threshold: 10^6
-    BASE_EXPONENT: 6,
+    // Base Sigil Threshold: 10^6 (Nyní 10^4.5 pro snazší začátek)
+    BASE_EXPONENT: 4.5,
 
     init() {
         this.state = window.GameStorage.load();
@@ -37,6 +37,13 @@ window.Game = {
         return this.state.upgrades.reduce((sum, u) => sum + this.getUpgradeProduction(u), 0);
     },
 
+    getGlobalMultiplier() {
+        // Bonus za každý zakoupený level v Ascension (Long-term progression)
+        // Každý level v jakékoli větvi dává +10% k celkové produkci
+        const totalAscensionLevels = this.state.ascension.reduce((acc, p) => acc + p.count, 0);
+        return 1 + (totalAscensionLevels * 0.1);
+    },
+
     getUpgradeProduction(u) {
         if (u.count === 0) return 0;
 
@@ -44,6 +51,9 @@ window.Game = {
 
         // Tier Boost (2x každých 25)
         prod *= Math.pow(2, Math.floor(u.count / 25));
+
+        // GLOBAL ASCENSION MULTIPLIER (Long-term bonus)
+        prod *= this.getGlobalMultiplier();
 
         // ASCENSION BONUSY
         // PATH A: EXPANSION (×3 per level)
@@ -96,13 +106,25 @@ window.Game = {
         // PATH C: TRANSCENDENCE (Snižuje exponent o 1 per level)
         const transcendence = this.state.ascension[2].count; 
 
-        const targetExponent = this.BASE_EXPONENT + this.state.totalSigilsEarned - transcendence;
+        // Zploštění křivky: Prvních 5 sigilů je levnějších (růst o 0.5 řádu místo 1)
+        let effectiveSigils = this.state.totalSigilsEarned;
+        if (effectiveSigils < 5) {
+             effectiveSigils = effectiveSigils * 0.5;
+        } else {
+             effectiveSigils = 2.5 + (effectiveSigils - 5);
+        }
+
+        const targetExponent = this.BASE_EXPONENT + effectiveSigils - transcendence;
         
         return Math.pow(10, targetExponent);
     },
 
     getAscensionCost(p) {
-        // Cena: Base + Count
+        // Cena: Base + Count (Standard)
+        // Pokud je to 'phase 2' (např. baseCost > 3), růst je rychlejší
+        if (p.baseCost >= 3) {
+            return p.baseCost + (p.count * 2);
+        }
         return p.baseCost + p.count;
     },
 

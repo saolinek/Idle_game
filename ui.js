@@ -207,6 +207,19 @@ window.UI = {
     updateAscensionGrid(state) {
         this.elements.ascensionStars.textContent = state.stars;
 
+        // Show global bonus
+        const globalMult = window.Game.getGlobalMultiplier();
+        const globalMultText = document.getElementById('globalMultText');
+        if (globalMultText) {
+            if (globalMult > 1) {
+                globalMultText.style.display = 'inline-block';
+                globalMultText.textContent = `(Global Bonus: +${Math.round((globalMult - 1) * 100)}%)`;
+                globalMultText.className = "text-emerald-300 ml-1 font-black";
+            } else {
+                globalMultText.style.display = 'none';
+            }
+        }
+
         state.ascension.forEach((p, i) => {
             const cache = this.ascensionCache[i];
             const cost = window.Game.getAscensionCost(p);

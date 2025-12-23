@@ -20,11 +20,16 @@ window.GameStorage = {
             ],
             // 5 CEST (Paths)
             ascension: [
+                // Phase 1 (Early) - Cost 1
                 { id: 0, name: "Expansion", desc: "Produkce ×3", count: 0, baseCost: 1, max: 10, color: "#3b82f6", icon: "fa-chart-line" },
                 { id: 1, name: "Optimization", desc: "Ceny růst -20%", count: 0, baseCost: 1, max: 10, color: "#10b981", icon: "fa-sliders" },
-                { id: 2, name: "Transcendence", desc: "Sigily o 1 řád dříve", count: 0, baseCost: 2, max: 5, color: "#a855f7", icon: "fa-eye" },
-                { id: 3, name: "Acceleration", desc: "Rychlost ×2", count: 0, baseCost: 2, max: 10, color: "#f59e0b", icon: "fa-forward" },
-                { id: 4, name: "Overflow", desc: "Lifetime posiluje", count: 0, baseCost: 3, max: 5, color: "#ec4899", icon: "fa-infinity" }
+
+                // Phase 2 (Mid) - Cost 3
+                { id: 3, name: "Acceleration", desc: "Rychlost ×2", count: 0, baseCost: 3, max: 10, color: "#f59e0b", icon: "fa-forward" },
+
+                // Phase 3 (Late) - Cost 5+
+                { id: 2, name: "Transcendence", desc: "Sigily o 1 řád dříve", count: 0, baseCost: 5, max: 5, color: "#a855f7", icon: "fa-eye" },
+                { id: 4, name: "Overflow", desc: "Lifetime posiluje", count: 0, baseCost: 5, max: 5, color: "#ec4899", icon: "fa-infinity" }
             ]
         };
     },
