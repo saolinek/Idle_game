@@ -16,8 +16,13 @@ window.Main = {
         requestAnimationFrame((t) => this.loop(t));
 
         // 4. Auto-save on exit
-        window.addEventListener('beforeunload', () => {
-            window.GameStorage.save(window.Game.state);
+        const saveFn = () => window.GameStorage.save(window.Game.state);
+        window.addEventListener('beforeunload', saveFn);
+        window.addEventListener('pagehide', saveFn);
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden') {
+                saveFn();
+            }
         });
 
         console.log("Ready.");

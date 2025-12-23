@@ -265,6 +265,9 @@ window.UI = {
                         <div class="text-[9px] text-slate-400 font-bold uppercase">Available Sigils</div>
                     </div>
                 </div>
+                <div class="text-center mt-4">
+                    <span class="text-[10px] text-slate-300 font-black uppercase tracking-widest">Verze hry: ${window.Game.VERSION}</span>
+                </div>
             </div>`;
     },
 

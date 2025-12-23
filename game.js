@@ -1,4 +1,6 @@
 window.Game = {
+    // Verze aplikace (Zvyšovat o +0.1 při každé úpravě/bugfixu)
+    VERSION: "1.0",
     state: null,
     
     // Base Sigil Threshold: 10^6
@@ -184,5 +186,8 @@ window.Game = {
         if (offlineGain > 0) {
             window.UI.showOfflineInfo(offlineSeconds, offlineGain);
         }
+
+        // Aktualizujeme čas, abychom zamezili duplicitnímu přičtení
+        this.state.lastTimestamp = now;
     }
 };
