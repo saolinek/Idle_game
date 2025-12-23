@@ -1,0 +1,93 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap');
+
+/* Základní nastavení */
+body { 
+    font-family: 'Outfit', sans-serif; 
+    background-color: #f8fafc; 
+    overflow: hidden; 
+    touch-action: manipulation; /* Rychlejší reakce na dotyk */
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    height: 100vh; 
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Desktop kontejner */
+@media (min-width: 768px) {
+    body {
+        max-width: 480px;
+        margin: 0 auto;
+        border-left: 1px solid #e2e8f0;
+        border-right: 1px solid #e2e8f0;
+        box-shadow: 0 0 50px rgba(0,0,0,0.05);
+    }
+}
+
+/* Interaktivita */
+button { cursor: pointer; }
+button:disabled, .btn-disabled { 
+    cursor: default; 
+    pointer-events: none; 
+}
+
+/* Karty */
+.card-press {
+    cursor: pointer;
+    transition: transform 0.05s ease-out, border-color 0.2s, background-color 0.2s;
+    will-change: transform;
+}
+.card-press:active { 
+    transform: scale(0.96); 
+}
+
+/* Stavy karet */
+.can-buy { 
+    border-color: currentColor;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.cannot-buy { 
+    filter: grayscale(1) opacity(0.6); 
+    border-color: #f1f5f9 !important;
+    background-color: #f8fafc !important;
+}
+
+/* Glow efekt jen pro dostupné */
+.glow-effect {
+    animation: glow 2s infinite alternate;
+}
+@keyframes glow {
+    from { box-shadow: 0 0 5px rgba(0,0,0,0.05); }
+    to { box-shadow: 0 0 15px rgba(0,0,0,0.1); }
+}
+
+/* Scrollbar */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Prestige Bar */
+.evolution-gradient {
+    background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
+    background-size: 200% 200%;
+    animation: moveGradient 3s linear infinite;
+}
+@keyframes moveGradient {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+}
+
+/* Plovoucí text */
+.float-text {
+    position: fixed;
+    pointer-events: none;
+    font-weight: 900;
+    color: #10b981;
+    z-index: 50;
+    animation: floatUp 0.8s ease-out forwards;
+}
+@keyframes floatUp {
+    0% { transform: translateY(0) scale(1); opacity: 1; }
+    100% { transform: translateY(-50px) scale(1.5); opacity: 0; }
+}
