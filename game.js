@@ -1,14 +1,30 @@
 window.Game = {
     // Verze aplikace (Zvyšovat o +0.1 při každé úpravě/bugfixu)
-    VERSION: "1.2",
+    VERSION: "1.3",
     state: null,
     
     // Base Sigil Threshold: 10^6 (Nyní 10^4.5 pro snazší začátek)
     BASE_EXPONENT: 4.5,
 
     init() {
+        this.checkVersionAndCache();
         this.state = window.GameStorage.load();
         this.processOfflineProgress();
+    },
+
+    checkVersionAndCache() {
+        const CACHE_KEY = 'crystal_game_version';
+        const storedVersion = localStorage.getItem(CACHE_KEY);
+
+        if (!storedVersion) {
+            // První spuštění nebo chybějící verze -> Uložíme aktuální
+            localStorage.setItem(CACHE_KEY, this.VERSION);
+        } else if (storedVersion !== this.VERSION) {
+            // Neshoda verzí -> Update a vynucený reload pro cache busting
+            console.log(`Version mismatch: ${storedVersion} -> ${this.VERSION}. Reloading...`);
+            localStorage.setItem(CACHE_KEY, this.VERSION);
+            location.reload(true);
+        }
     },
 
     tick(dt) {
