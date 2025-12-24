@@ -92,9 +92,7 @@ window.UI = {
                     <div class="pointer-events-none">
                         <div class="font-black text-[13px] text-slate-800 tracking-tight leading-tight mb-0.5 uppercase">${u.name}</div>
                         <div id="upg-prod-${i}" class="text-[10px] font-bold text-slate-400 uppercase">Prod: 0</div>
-                        <div class="w-full h-1.5 bg-slate-50 rounded-full mt-2 overflow-hidden border border-slate-100">
-                            <div id="upg-bar-${i}" class="h-full transition-all duration-300" style="width: 0%; background: ${u.color}"></div>
-                        </div>
+                        <div id="upg-gain-${i}" class="text-[9px] font-black text-emerald-500 uppercase mt-2 h-4"></div>
                     </div>
                     <div class="mt-2 pt-2 border-t border-slate-50 flex justify-between items-center pointer-events-none">
                         <span id="upg-amount-${i}" class="text-[9px] font-black text-slate-300 uppercase">+1</span>
@@ -108,7 +106,7 @@ window.UI = {
                 card: document.getElementById(`upg-card-${i}`),
                 lvl: document.getElementById(`upg-lvl-${i}`),
                 prod: document.getElementById(`upg-prod-${i}`),
-                bar: document.getElementById(`upg-bar-${i}`),
+                gain: document.getElementById(`upg-gain-${i}`),
                 amount: document.getElementById(`upg-amount-${i}`),
                 cost: document.getElementById(`upg-cost-${i}`)
             };
@@ -184,11 +182,19 @@ window.UI = {
             const amount = state.mode === 'MAX' ? Math.max(1, window.Game.getMaxBuy(u)) : Math.max(1, 25 - (u.count % 25));
             const cost = window.Game.getUpgradeCost(u, amount);
             const canAfford = state.bytes >= cost;
-            const prod = window.Game.getUpgradeProduction(u);
+
+            // Current Production
+            const currentProd = window.Game.getUpgradeProduction(u);
+
+            // Future Production (after buy)
+            // Clone upgrade object to simulate next state
+            const futureU = { ...u, count: u.count + amount };
+            const futureProd = window.Game.getUpgradeProduction(futureU);
+            const gain = futureProd - currentProd;
 
             cache.lvl.textContent = `Lvl ${u.count}`;
-            cache.prod.textContent = `Prod: ${this.formatWithUnit(prod, " 💎/s")}`;
-            cache.bar.style.width = ((u.count % 25) / 25) * 100 + "%";
+            cache.prod.textContent = `Prod: ${this.formatWithUnit(currentProd, " 💎/s")}`;
+            cache.gain.textContent = `+${this.formatWithUnit(gain, " /s")}`;
             cache.amount.textContent = `+${amount}`;
             cache.cost.textContent = this.formatWithUnit(cost, " 💎");
 
@@ -256,8 +262,62 @@ window.UI = {
         const seconds = timePlayed % 60;
         const totalUpgrades = state.upgrades.reduce((acc, u) => acc + u.count, 0);
 
+        // --- CALCULATE BONUSES ---
+        const globalMult = window.Game.getGlobalMultiplier(); // e.g. 1.2
+        const expansionMult = Math.pow(3, state.ascension[0].count); // e.g. 3
+        const optimizationRed = 1 - Math.pow(0.8, state.ascension[1].count); // e.g. 0.2 (20%)
+        const transcendenceLvl = state.ascension[2].count;
+        const accelerationMult = Math.pow(2, state.ascension[3].count);
+
+        // Overflow
+        let overflowMult = 1;
+        if (state.ascension[4].count > 0 && state.lifetimeBytes > 10) {
+             const logLife = Math.log10(state.lifetimeBytes);
+             overflowMult = 1 + (logLife * state.ascension[4].count * 0.5);
+        }
+
+        let bonusesHtml = '';
+        const addBonus = (name, val, src, icon, color) => {
+            bonusesHtml += `
+                <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white" style="background: ${color}">
+                            <i class="fas ${icon}"></i>
+                        </div>
+                        <div>
+                            <div class="text-[10px] font-black uppercase text-slate-400">${src}</div>
+                            <div class="text-xs font-bold text-slate-800">${name}</div>
+                        </div>
+                    </div>
+                    <div class="text-right font-black text-indigo-600 text-sm">${val}</div>
+                </div>
+            `;
+        };
+
+        if (globalMult > 1) addBonus("Global Production", `×${globalMult.toFixed(2)}`, "Ascension Levels", "fa-globe", "#6366f1");
+        if (expansionMult > 1) addBonus("Expansion Bonus", `×${this.format(expansionMult)}`, "Ascension: Expansion", "fa-chart-line", "#3b82f6");
+        if (optimizationRed > 0) addBonus("Cost Reduction", `-${Math.round(optimizationRed * 100)}%`, "Ascension: Optimization", "fa-sliders", "#10b981");
+        if (accelerationMult > 1) addBonus("Speed Bonus", `×${this.format(accelerationMult)}`, "Ascension: Acceleration", "fa-forward", "#f59e0b");
+        if (overflowMult > 1) addBonus("Lifetime Bonus", `×${overflowMult.toFixed(2)}`, "Ascension: Overflow", "fa-infinity", "#ec4899");
+        if (transcendenceLvl > 0) addBonus("Sigil Threshold", `-${transcendenceLvl} Orders`, "Ascension: Transcendence", "fa-eye", "#a855f7");
+
+        if (bonusesHtml === '') {
+            bonusesHtml = `<div class="text-center text-slate-300 text-xs py-4 italic">Zatím žádné aktivní bonusy</div>`;
+        }
+
         this.elements.statsContent.innerHTML = `
             <div class="grid grid-cols-1 gap-4">
+                <!-- ACTIVE BONUSES SECTION -->
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
+                    <div class="flex items-center gap-2 mb-4 border-b border-slate-50 pb-2">
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <span class="text-xs font-black uppercase tracking-widest text-slate-900">Aktivní Bonusy</span>
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        ${bonusesHtml}
+                    </div>
+                </div>
+
                 <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
                     <div class="text-xs text-slate-400 font-bold uppercase tracking-widest mb-1">Lifetime</div>
                     <div class="text-3xl font-black text-indigo-600">${this.formatWithUnit(state.lifetimeBytes, " 💎")}</div>
